@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Star List Generator</title>
+    <title>GitHub Table Generator</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,19 +21,20 @@
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             border: 1px solid #30363d;
         }
         h2 { text-align: center; color: #58a6ff; margin-top: 0; }
-        label { display: block; margin: 15px 0 5px; font-weight: bold; }
+        label { display: block; margin: 15px 0 5px; font-weight: bold; color: #8b949e; }
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             box-sizing: border-box;
             background: #0d1117;
             border: 1px solid #30363d;
             color: white;
             border-radius: 6px;
+            font-size: 14px;
         }
         button {
             width: 100%;
@@ -46,12 +47,14 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            transition: 0.2s;
         }
         button:hover { background-color: #2ea043; }
+        
+        /* Textarea styles */
         textarea {
             width: 100%;
-            height: 80px;
-            margin-top: 10px;
+            margin-top: 5px;
             background: #0d1117;
             border: 1px solid #30363d;
             color: #79c0ff;
@@ -59,31 +62,57 @@
             padding: 10px;
             box-sizing: border-box;
             font-family: monospace;
+            font-size: 13px;
         }
+
+        .header-box {
+            background: #21262d;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #a371f7;
+        }
+        .header-text {
+            font-family: monospace;
+            color: #ff7b72;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
         .copy-btn {
             background-color: #1f6feb;
             margin-top: 10px;
         }
+        .copy-btn:hover { background-color: #388bfd; }
         .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #8b949e; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>স্টার লিস্ট জেনারেটর</h2>
-    
-    <label for="urlInput">রিপোজিটরি লিংক পেস্ট করুন:</label>
-    <input type="text" id="urlInput" placeholder="https://github.com/Username/Repository">
+    <h2>স্টার লিস্ট টেবিল জেনারেটর</h2>
 
-    <button onclick="generateCode()">কোড তৈরি করুন</button>
-
-    <div id="resultArea" style="display:none;">
-        <label>আপনার Markdown কোড:</label>
-        <textarea id="outputCode" readonly></textarea>
-        <button class="copy-btn" onclick="copyText()">কপি করুন</button>
+    <div class="header-box">
+        <label style="margin-top:0; color:#fff;">ধাপ ১: টেবিল হেডার (একবার ব্যবহার করুন)</label>
+        <div class="header-text">| Project Name | Last Update |<br>| :--- | :--- |</div>
     </div>
     
-    <div class="footer">Private Repository-তে পেস্ট করার জন্য</div>
+    <label for="urlInput">ধাপ ২: রিপোজিটরি লিংক দিন</label>
+    <input type="text" id="urlInput" placeholder="https://github.com/Username/Repository">
+
+    <button onclick="generateCode()">সারি (Row) তৈরি করুন</button>
+
+    <div id="resultArea" style="display:none;">
+        <label>আপনার কোড (এটি হেডারের নিচে বসান):</label>
+        <textarea id="outputCode" rows="3" readonly></textarea>
+        
+        <label style="margin-top:15px">প্রিভিউ (Preview):</label>
+        <div id="preview" style="background:#fff; padding:10px; border-radius:4px; color:#000; overflow-x:auto;"></div>
+
+        <button class="copy-btn" onclick="copyText()">কোড কপি করুন</button>
+    </div>
+    
+    <div class="footer">Private Repository-র README ফাইলে পেস্ট করুন</div>
 </div>
 
 <script>
@@ -100,9 +129,22 @@
             var user = parts[3];
             var repo = parts[4];
             
-            var markdown = `- [${repo}](${url}) ![Last Commit](https://img.shields.io/github/last-commit/${user}/${repo})`;
+            // Generate Table Row Format with Flat Square Badge
+            var badgeUrl = `https://img.shields.io/github/last-commit/${user}/${repo}?style=flat-square&color=blue`;
+            var markdown = `| **[${repo}](${url})** | ![Update](${badgeUrl}) |`;
             
+            // Output Code
             document.getElementById("outputCode").value = markdown;
+            
+            // Simple Preview (HTML simulation of the markdown)
+            document.getElementById("preview").innerHTML = 
+                `<table style="border-collapse: collapse; width: 100%;">
+                    <tr style="border-bottom: 1px solid #ccc;">
+                        <td style="padding: 5px;"><b><a href="${url}" style="text-decoration:none; color:#0969da;">${repo}</a></b></td>
+                        <td style="padding: 5px;"><img src="${badgeUrl}" alt="Update"></td>
+                    </tr>
+                </table>`;
+
             document.getElementById("resultArea").style.display = "block";
         } catch (e) {
             alert("লিংক প্রসেস করা যাচ্ছে না।");
