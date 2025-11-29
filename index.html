@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Generator</title>
+    <title>Clean List Generator</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -24,19 +24,17 @@
             border: 1px solid #30363d;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
+        h3 { text-align: center; margin-top: 0; color: #58a6ff; }
         
-        /* Header Info */
         .info-box {
             background: #21262d;
-            border-left: 4px solid #a371f7;
+            border-left: 4px solid #f78166;
             padding: 10px;
             margin-bottom: 20px;
             font-size: 13px;
             color: #fff;
         }
 
-        /* Inputs */
-        label { display: block; margin-bottom: 8px; font-size: 13px; color: #8b949e; }
         input {
             width: 100%;
             padding: 12px;
@@ -50,26 +48,24 @@
         }
         input:focus { border-color: #58a6ff; }
 
-        /* Output Area */
         textarea {
             width: 100%;
-            height: 70px;
+            height: 60px;
             background: #0d1117;
             border: 1px solid #30363d;
             color: #79c0ff;
             border-radius: 6px;
             padding: 10px;
-            margin-top: 5px;
+            margin-top: 15px;
             box-sizing: border-box;
             font-family: monospace;
             font-size: 13px;
         }
 
-        /* Copy Button */
         .copy-btn {
             width: 100%;
             padding: 12px;
-            background-color: #238636; /* Green */
+            background-color: #238636;
             color: white;
             border: none;
             border-radius: 6px;
@@ -80,28 +76,44 @@
             transition: 0.2s;
         }
         .copy-btn:hover { background-color: #2ea043; }
-        .copy-btn:active { transform: scale(0.98); }
-
+        
+        /* Preview Style inside the tool */
+        .preview-area {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 4px;
+            color: #000;
+            display: none;
+        }
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h3 style="text-align:center; margin-top:0; color:#58a6ff;">🚀 সুপার ফাস্ট জেনারেটর</h3>
+    <h3> ক্লিন লিস্ট জেনারেটর</h3>
 
     <div class="info-box">
-        <b>ধাপ ১:</b> README ফাইলে এই হেডারটি ১ বার বসান:<br>
-        <code style="background:#000; color:#ff7b72;">| Project Name | Last Update |</code><br>
-        <code style="background:#000; color:#ff7b72;">| :--- | :--- |</code>
+        <b>সতর্কতা:</b> আপনার README ফাইল থেকে আগের টেবিল হেডারটি (Project Name | Status) মুছে ফেলুন। এখন আর সেটির দরকার নেই।
     </div>
 
-    <label>গিটহাব লিংক পেস্ট করুন:</label>
+    <label style="font-size:13px; color:#8b949e; display:block; margin-bottom:8px;">গিটহাব লিংক পেস্ট করুন:</label>
     <input type="text" id="urlInput" placeholder="https://github.com/..." oninput="autoGenerate()" autofocus>
 
-    <div id="resultArea" style="display:none; margin-top:20px;">
-        <label>আপনার কোড:</label>
+    <div id="resultArea" style="display:none;">
         <textarea id="outputCode" readonly onclick="this.select()"></textarea>
         
+        <div id="previewBox" class="preview-area">
+            <div style="font-size:12px; color:#666; margin-bottom:5px;">প্রিভিউ:</div>
+            <div id="previewContent" class="preview-item"></div>
+        </div>
+
         <button id="btnCopy" class="copy-btn" onclick="copyText()">📋 কপি করুন</button>
     </div>
 </div>
@@ -113,17 +125,22 @@
 
         if(url.endsWith('/')) url = url.slice(0, -1);
 
-        // Check if link looks valid
         if (url.includes("github.com") && url.split("/").length >= 5) {
             try {
                 var parts = url.split("/");
                 var user = parts[3];
                 var repo = parts[4];
                 
-                // Create Code
-                var markdown = `| **[${repo}](${url})** | ![Update](https://img.shields.io/github/last-commit/${user}/${repo}?style=flat-square&color=2ea44f) |`;
+                // New Format: Bullet List (No pipes)
+                var markdown = `- **[${repo}](${url})** ![Update](https://img.shields.io/github/last-commit/${user}/${repo}?style=flat-square&color=2ea44f)`;
                 
                 document.getElementById("outputCode").value = markdown;
+                
+                // Show Preview
+                document.getElementById("previewContent").innerHTML = 
+                    `<b>${repo}</b> <img src="https://img.shields.io/github/last-commit/${user}/${repo}?style=flat-square&color=2ea44f" height="20">`;
+                document.getElementById("previewBox").style.display = "block";
+                
                 resultArea.style.display = "block"; 
             } catch (e) {}
         } else {
@@ -136,15 +153,13 @@
         copyText.select();
         document.execCommand("copy");
         
-        // NO ALERT BOX. Just button change.
         var btn = document.getElementById("btnCopy");
-        btn.innerHTML = "✅ কপি হয়েছে!"; // Change text
-        btn.style.backgroundColor = "#1f6feb"; // Change color to Blue
+        btn.innerHTML = "✅ কপি হয়েছে!";
+        btn.style.backgroundColor = "#1f6feb";
         
-        // Reset button after 1 second
         setTimeout(function(){
             btn.innerHTML = "📋 কপি করুন";
-            btn.style.backgroundColor = "#238636"; // Back to Green
+            btn.style.backgroundColor = "#238636";
         }, 1000);
     }
 </script>
